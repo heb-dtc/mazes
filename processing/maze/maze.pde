@@ -1,139 +1,124 @@
-enum CELL_POS {
-  NORTH, SOUTH, EAST, WEST
+class ScreenCell {
+  Cell cell;
+  int cellSize;
+  int red;
+  int green;
+  int blue;
+  
+  ScreenCell(Cell cell, int size) {
+    this.cell = cell;
+    this.cellSize = size;
+    this.red = 255;
+    this.green = 123;
+    this.blue = 245;
+  }
+  
+  int getCellSize() {
+    return cellSize;
+  }
+  
+  void updateCellSize(int size) {
+    if (size > this.cellSize) {
+      this.red = 255;
+      this.green = 123;
+      this.blue = 245;
+    } else {
+      this.red = 134;
+      this.green = 34;
+      this.blue = 79;
+    }
+    this.cellSize = size;
+  }
+  
+  void draw() {
+    fill(red, green, blue);
+    
+    if (!cell.isLinked(cell.getEast())) {
+      println("has east wall");
+      //stroke(0, 0 , 0);
+      // EAST WALL - topright to bottom pright
+      line(cell.getCol() * cellSize + cellSize, cell.getRow() * cellSize,
+        cell.getCol() * cellSize + cellSize, cell.getRow() * cellSize + cellSize);
+    }
+    
+    if (!cell.isLinked(cell.getSouth())) {
+      println("has south wall");
+      //stroke(0, 0 , 255);
+      //SOUTH WALL - bottomleft to bottomright
+      line(cell.getCol() * cellSize, cell.getRow() * cellSize + cellSize,
+        cell.getCol() * cellSize + cellSize, cell.getRow() * cellSize + cellSize);
+    }
+    
+    //stroke(0, 255 ,0);
+    //WEST WALL - topleft to bottomleft
+    //line(cell.getRow() * cellSize, cell.getCol() * cellSize, 
+    //  cell.getRow() * cellSize, cell.getCol() * cellSize + cellSize);
+    
+    //stroke(255, 0 ,0);
+    //NORTH WALL - topleft to top right
+    //line(cell.getRow() * cellSize, cell.getCol() * cellSize,
+    //  cell.getRow() * cellSize + cellSize, cell.getCol() * cellSize);
+
+    //rect(cell.getRow() * cellSize, cell.getCol() * cellSize, cellSize, cellSize);
+  }
 }
 
-class Cell {
-  int col, row;
-  HashMap<Cell, Boolean> links;
-  Cell north, south, east, west; 
- 
-  Cell(int col, int row) {
-    this.col = col;
-    this.row = row;
-    this.links = new HashMap();
-  }
-  
-  int getRow() {
-    return row;
-  }
-  
-  int getCol() {
-    return col;
-  }
-  
-  void setNorth(Cell cell) {
-    north = cell;
-  }
-  
-  void setSouth(Cell cell) {
-    south = cell;
-  }
-  
-  void setEast(Cell cell) {
-    east = cell;
-  }
-  
-  void setWest(Cell cell) {
-    west = cell;
-  }
-  
-  void link(Cell cell) {
-    links.put(cell, true);
-    cell.link(this);
-  }
-  
-  void unlink(Cell cell) {
-    links.remove(cell);
-    cell.unlink(this);
-  }
-  
-   ArrayList<Cell> getNeighbors() {
-     ArrayList<Cell> cells = new ArrayList();
-     return cells;
-  }
-  
-  Boolean contains(Cell cell) {
-    return links.containsKey(cell); 
-  }
-}
-
-class Grid {
-  int rows, columns;
-  ArrayList<ArrayList<Cell>> grid;
-  
-  Grid(int rows, int columns) {
-    this.rows = rows;
-    this.columns = columns;
-    prepareGrid();
-    configureCells();
-  }
-  
-  void prepareGrid() {
-    ArrayList<ArrayList<Cell>> rws = new ArrayList(rows);
-    
-    for(int i=0 ; i < rows ; i++) {
-      ArrayList<Cell> cols = new ArrayList(columns);
-      for(int y=0 ; y < columns ; y++) {
-        cols.add(new Cell(i, y));
-      }
-      rws.add(cols);
-    }
-    
-    this.grid = rws;
-  }
-  
-  int size() {
-    return rows * columns;
-  }
-  
-  void configureCells() {
-    for(int i=0 ; i < rows ; i++) {
-      for(int y=0 ; y < columns ; y++) {
-        grid.get(i).get(y).setNorth(getCell(i - 1, y));
-        grid.get(i).get(y).setSouth(getCell(i + 1, y));
-        grid.get(i).get(y).setEast(getCell(i, y + 1));
-        grid.get(i).get(y).setWest(getCell(i, y - 1));
-      }
-    }
-  }
-  
-  Cell getCell(int row, int col) {
-    if (row < 0 || row >= rows) {
-      return null;
-    }
-    
-    if (col < 0 || col >= columns) {
-      return null;
-    }
-    
-    return grid.get(row).get(col);
-  }
-  
-  ArrayList<Cell> getCells() {
-    ArrayList<Cell> cells = new ArrayList(size());
-    for(int i=0 ; i < rows ; i++) {
-      for(int y=0 ; y < columns ; y++) {
-        cells.add(getCell(i, y));
-      }
-    }
-    return cells;
-  }
-}
+Grid grid;
+BinaryTree walker;
+ArrayList<ScreenCell> cells;
+int state = 0;
 
 void setup() {
-  size(500, 500);
+  //size(505, 505);
+  fullScreen();
   
-  int cellSize = 20;
-  int cellNb = width / cellSize;
-  Grid grid = new Grid(cellNb, cellNb);
+  int cellSize = 10;
+  int rowNb = height / cellSize;
+  int colNb = width / cellSize;
+  grid = new Grid(rowNb, colNb);
+
+  cells = new ArrayList(grid.size());
+  
+  walker = new BinaryTree();
+  walker.walk(grid);
   
   fill(255, 123, 245);
+  
+  //draw north outer wall of maze
+  line(0, 0, width, 0);
+  //draw west outer wall of maze
+  line(0,0, 0, height);
   for(int i=0 ; i < grid.size() ; i++) {
-    println(i);
     Cell cell = grid.getCells().get(i);
-    rect(cell.getRow() * cellSize, cell.getCol() * cellSize, cellSize, cellSize);
+    ScreenCell drawnCell = new ScreenCell(cell, cellSize);
+    cells.add(drawnCell);
+    drawnCell.draw();
   }
 }
 
 void draw() {
+  
+  if (state == 0) {
+    stroke(255, 0, 0);
+    state = 1;
+  } else if (state == 1) {
+    stroke(0, 255, 0);
+    state = 2;
+  } else {
+    stroke(0, 0, 255);
+    state = 0;
+  }
+  
+  for(int i=0 ; i < cells.size() ; i++) {
+    cells.get(i).draw();
+  }
+  
+  /*int index = (int) random(grid.size());
+  ScreenCell sc = cells.get(index);
+  
+  boolean grow = random(2) > 1 ? true : false;
+  
+  int newCellSize = sc.getCellSize() - (grow ? 1 : -1);
+  sc.updateCellSize(newCellSize);
+  sc.draw();*/
 }
