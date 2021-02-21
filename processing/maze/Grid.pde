@@ -33,6 +33,10 @@ class Cell {
     return east;
   }
   
+  Cell getWest() {
+    return west;
+  }
+  
   void setSouth(Cell cell) {
     south = cell;
   }

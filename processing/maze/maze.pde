@@ -1,14 +1,14 @@
 Grid grid;
 ArrayList<ScreenCell> cells;
 int state = 0;
-int cellSize = 100;
+int cellSize = 10;
 
-int playerCell;
+Cell playerCell;
 int playerSize = cellSize * 2;
 
 void setup() {
-  //size(530, 530);
-  fullScreen();
+  size(530, 530);
+  //fullScreen();
   
   int rowNb = (height - 20) / cellSize;
   int colNb = (width - 20) / cellSize;
@@ -27,16 +27,19 @@ void setup() {
     cells.add(drawnCell);
   }
   
-  playerCell = (int) random(cells.size());
+  int playerCellX = (int) random(grid.colNumber());
+  int playerCellY = (int) random(grid.rowNumber());
+  
+  playerCell = grid.getCell(playerCellX, playerCellY);
 }
 
 void drawPlayer() {
-  ScreenCell cell = cells.get(playerCell);
-  int x = cell.getXCenter();
-  int y = cell.getYCenter();
+  //ScreenCell cell = cells.get(playerCell);
+  int x = playerCell.getCol() * cellSize + (cellSize / 2);
+  int y = playerCell.getRow() * cellSize + (cellSize / 2);
   
   if (playerSize > (cellSize / 4)) {
-    playerSize = playerSize - 2;
+    playerSize = playerSize - 1;
   }
   
   fill(0, 255, 0);
@@ -85,4 +88,30 @@ void draw() {
   background(255, 0, 0);
   drawMaze();
   drawPlayer();
+}
+
+void keyPressed() {
+   if (key == CODED) {
+     if (keyCode == UP) {
+       if (playerCell.isLinked(playerCell.getNorth())) {
+         playerCell = playerCell.getNorth();
+       }
+     } else if (keyCode == DOWN) {
+       if (playerCell.isLinked(playerCell.getSouth())) {
+         playerCell = playerCell.getSouth();
+       }
+     } else if (keyCode == RIGHT) {
+       if (playerCell.isLinked(playerCell.getEast())) {
+         playerCell = playerCell.getEast();
+       }
+     } else if (keyCode == LEFT) {
+       if (playerCell.isLinked(playerCell.getWest())) {
+         playerCell = playerCell.getWest();
+       }
+     } 
+   } else {
+     if (key == 'f') {
+       playerSize = cellSize * 2;
+     }
+   }
 }

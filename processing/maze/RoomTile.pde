@@ -17,6 +17,10 @@ class ScreenCell {
     return cell.getCol() * cellSize + (cellSize / 2);
   }
   
+  Cell getCell() {
+    return cell;
+  }
+  
   int getYCenter() {
     return cell.getRow() * cellSize + (cellSize / 2);
   }
