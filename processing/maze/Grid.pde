@@ -108,6 +108,14 @@ class Grid {
     return rows * columns;
   }
   
+  int rowNumber() {
+    return rows;
+  }
+  
+  int colNumber() {
+    return columns;
+  }
+  
   Cell getCell(int row, int col) {
     if (row < 0 || row >= rows) {
       return null;
@@ -141,5 +149,9 @@ class Grid {
       }
     }
     return cells;
+  }
+  
+  ArrayList<ArrayList<Cell>> getRows() {
+    return grid;
   }
 }

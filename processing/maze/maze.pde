@@ -17,87 +17,82 @@ class ScreenCell {
     return cellSize;
   }
   
-  void updateCellSize(int size) {
-    if (size > this.cellSize) {
-      this.red = 255;
-      this.green = 123;
-      this.blue = 245;
-    } else {
-      this.red = 134;
-      this.green = 34;
-      this.blue = 79;
-    }
-    this.cellSize = size;
-  }
-  
   void draw() {
-    fill(red, green, blue);
-    
+    // draw east wall
     if (!cell.isLinked(cell.getEast())) {
-      println("has east wall");
-      //stroke(0, 0 , 0);
       // EAST WALL - topright to bottom pright
       line(cell.getCol() * cellSize + cellSize, cell.getRow() * cellSize,
         cell.getCol() * cellSize + cellSize, cell.getRow() * cellSize + cellSize);
     }
     
+    // draw south wall
     if (!cell.isLinked(cell.getSouth())) {
-      println("has south wall");
-      //stroke(0, 0 , 255);
       //SOUTH WALL - bottomleft to bottomright
       line(cell.getCol() * cellSize, cell.getRow() * cellSize + cellSize,
         cell.getCol() * cellSize + cellSize, cell.getRow() * cellSize + cellSize);
     }
     
-    //stroke(0, 255 ,0);
     //WEST WALL - topleft to bottomleft
     //line(cell.getRow() * cellSize, cell.getCol() * cellSize, 
     //  cell.getRow() * cellSize, cell.getCol() * cellSize + cellSize);
     
-    //stroke(255, 0 ,0);
     //NORTH WALL - topleft to top right
     //line(cell.getRow() * cellSize, cell.getCol() * cellSize,
     //  cell.getRow() * cellSize + cellSize, cell.getCol() * cellSize);
 
-    //rect(cell.getRow() * cellSize, cell.getCol() * cellSize, cellSize, cellSize);
+    // draw room floor
+    //fill(255, 255, 255);
+    //noStroke();
+    //rect((cell.getRow() * cellSize) + 1, (cell.getCol() * cellSize) + 1, cellSize - 1, cellSize - 1);
   }
 }
 
 Grid grid;
-BinaryTree walker;
 ArrayList<ScreenCell> cells;
 int state = 0;
+int cellSize = 100;
 
 void setup() {
-  //size(505, 505);
-  fullScreen();
+  size(530, 530);
+  //fullScreen();
+  background(255, 0, 0);
   
-  int cellSize = 10;
-  int rowNb = height / cellSize;
-  int colNb = width / cellSize;
+  int rowNb = (height - 10) / cellSize;
+  int colNb = (width - 10) / cellSize;
   grid = new Grid(rowNb, colNb);
-
-  cells = new ArrayList(grid.size());
   
-  walker = new BinaryTree();
+  //BinaryTree walker = new BinaryTree();
+  Sidewinder walker = new Sidewinder();
   walker.walk(grid);
   
   fill(255, 123, 245);
   
-  //draw north outer wall of maze
-  line(0, 0, width, 0);
-  //draw west outer wall of maze
-  line(0,0, 0, height);
+  cells = new ArrayList(grid.size());
   for(int i=0 ; i < grid.size() ; i++) {
     Cell cell = grid.getCells().get(i);
     ScreenCell drawnCell = new ScreenCell(cell, cellSize);
     cells.add(drawnCell);
-    drawnCell.draw();
   }
 }
 
-void draw() {
+void drawMaze() {
   
+  translate(10, 10);
+  
+  stroke(0);
+  strokeWeight(4);
+  //draw north outer wall of maze
+  line(0, 0, cellSize * grid.rowNumber(), 0);
+  //draw west outer wall of maze
+  line(0, 0, 0, cellSize * grid.colNumber());
+  
+  //draw each room
+  for(int i=0 ; i < cells.size() ; i++) {
+    cells.get(i).draw();
+  }
+}
+
+void blink() {
   if (state == 0) {
     stroke(255, 0, 0);
     state = 1;
@@ -108,17 +103,12 @@ void draw() {
     stroke(0, 0, 255);
     state = 0;
   }
+}
+
+void draw() {
   
-  for(int i=0 ; i < cells.size() ; i++) {
-    cells.get(i).draw();
-  }
+  stroke(0, 0, 0);
   
-  /*int index = (int) random(grid.size());
-  ScreenCell sc = cells.get(index);
-  
-  boolean grow = random(2) > 1 ? true : false;
-  
-  int newCellSize = sc.getCellSize() - (grow ? 1 : -1);
-  sc.updateCellSize(newCellSize);
-  sc.draw();*/
+  //blink();
+  drawMaze();
 }
