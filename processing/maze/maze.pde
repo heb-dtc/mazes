@@ -1,64 +1,17 @@
-class ScreenCell {
-  Cell cell;
-  int cellSize;
-  int red;
-  int green;
-  int blue;
-  
-  ScreenCell(Cell cell, int size) {
-    this.cell = cell;
-    this.cellSize = size;
-    this.red = 255;
-    this.green = 123;
-    this.blue = 245;
-  }
-  
-  int getCellSize() {
-    return cellSize;
-  }
-  
-  void draw() {
-    // draw east wall
-    if (!cell.isLinked(cell.getEast())) {
-      // EAST WALL - topright to bottom pright
-      line(cell.getCol() * cellSize + cellSize, cell.getRow() * cellSize,
-        cell.getCol() * cellSize + cellSize, cell.getRow() * cellSize + cellSize);
-    }
-    
-    // draw south wall
-    if (!cell.isLinked(cell.getSouth())) {
-      //SOUTH WALL - bottomleft to bottomright
-      line(cell.getCol() * cellSize, cell.getRow() * cellSize + cellSize,
-        cell.getCol() * cellSize + cellSize, cell.getRow() * cellSize + cellSize);
-    }
-    
-    //WEST WALL - topleft to bottomleft
-    //line(cell.getRow() * cellSize, cell.getCol() * cellSize, 
-    //  cell.getRow() * cellSize, cell.getCol() * cellSize + cellSize);
-    
-    //NORTH WALL - topleft to top right
-    //line(cell.getRow() * cellSize, cell.getCol() * cellSize,
-    //  cell.getRow() * cellSize + cellSize, cell.getCol() * cellSize);
-
-    // draw room floor
-    //fill(255, 255, 255);
-    //noStroke();
-    //rect((cell.getRow() * cellSize) + 1, (cell.getCol() * cellSize) + 1, cellSize - 1, cellSize - 1);
-  }
-}
-
 Grid grid;
 ArrayList<ScreenCell> cells;
 int state = 0;
 int cellSize = 100;
 
+int playerCell;
+int playerSize = cellSize * 2;
+
 void setup() {
-  size(530, 530);
-  //fullScreen();
-  background(255, 0, 0);
+  //size(530, 530);
+  fullScreen();
   
-  int rowNb = (height - 10) / cellSize;
-  int colNb = (width - 10) / cellSize;
+  int rowNb = (height - 20) / cellSize;
+  int colNb = (width - 20) / cellSize;
   grid = new Grid(rowNb, colNb);
   
   //BinaryTree walker = new BinaryTree();
@@ -73,18 +26,35 @@ void setup() {
     ScreenCell drawnCell = new ScreenCell(cell, cellSize);
     cells.add(drawnCell);
   }
+  
+  playerCell = (int) random(cells.size());
+}
+
+void drawPlayer() {
+  ScreenCell cell = cells.get(playerCell);
+  int x = cell.getXCenter();
+  int y = cell.getYCenter();
+  
+  if (playerSize > (cellSize / 4)) {
+    playerSize = playerSize - 2;
+  }
+  
+  fill(0, 255, 0);
+  noStroke();
+  ellipse(x, y, playerSize, playerSize);
 }
 
 void drawMaze() {
   
+  // shift everything by 10 to not draw on the sides
   translate(10, 10);
   
   stroke(0);
-  strokeWeight(4);
+  strokeWeight(2);
   //draw north outer wall of maze
-  line(0, 0, cellSize * grid.rowNumber(), 0);
+  line(0, 0, cellSize * grid.colNumber(), 0);
   //draw west outer wall of maze
-  line(0, 0, 0, cellSize * grid.colNumber());
+  line(0, 0, 0, cellSize * grid.rowNumber());
   
   //draw each room
   for(int i=0 ; i < cells.size() ; i++) {
@@ -106,9 +76,13 @@ void blink() {
 }
 
 void draw() {
-  
+  //clear background
+  background(255);
   stroke(0, 0, 0);
   
   //blink();
+  
+  background(255, 0, 0);
   drawMaze();
+  drawPlayer();
 }
