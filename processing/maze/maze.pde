@@ -1,7 +1,9 @@
 Grid grid;
+ScreenGrid screenGrid;
+
 ArrayList<ScreenCell> cells;
 int state = 0;
-int cellSize = 64;
+int cellSize = 20;
 
 Cell playerCell;
 float playerX, playerY;
@@ -30,12 +32,19 @@ void setup() {
     cells.add(drawnCell);
   }
   
+  screenGrid = new ScreenGrid();
+  screenGrid.init(cells);
+   
   int playerCellX = (int) random(grid.colNumber());
   int playerCellY = (int) random(grid.rowNumber());
   
   playerCell = grid.getCell(playerCellX, playerCellY);
   playerX = playerCell.getCol() * cellSize + (cellSize / 2);
   playerY = playerCell.getRow() * cellSize + (cellSize / 2);
+  
+  Cell startCell = grid.getCell(0, 0);
+  Distances distances = startCell.distances();
+  screenGrid.setDistances(distances);
 }
 
 void drawRay() {
@@ -164,10 +173,12 @@ void drawMaze() {
   //draw west outer wall of maze
   line(0, 0, 0, cellSize * grid.rowNumber());
   
+  screenGrid.draw();
+  
   //draw each room
-  for(int i=0 ; i < cells.size() ; i++) {
+  /*for(int i=0 ; i < cells.size() ; i++) {
     cells.get(i).draw();
-  }
+  }*/
 }
 
 void blink() {

@@ -81,6 +81,29 @@ class Cell {
   Boolean isLinked(Cell cell) {
     return links.containsKey(cell); 
   }
+  
+  Distances distances() {
+    Distances distances = new Distances(this);
+    ArrayList<Cell> frontier = new ArrayList();
+    frontier.add(this);
+    
+    while(frontier.size() > 0) {
+      ArrayList<Cell> bla = new ArrayList();
+      
+      for (Cell cell : frontier) {
+        for (Cell link : cell.getNeighbors()) {
+          if (distances.get(link) != null) {
+            distances.setDistance(link, distances.get(cell) + 1);
+            bla.add(link);
+          }
+        }
+      }
+      
+      frontier = bla;
+    }
+    
+    return distances;
+  }
 }
 
 class Grid {

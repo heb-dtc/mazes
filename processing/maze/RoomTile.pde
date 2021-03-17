@@ -1,3 +1,28 @@
+class ScreenGrid {
+  ArrayList<ScreenCell> cells;
+  Distances distances;
+  
+  void init(ArrayList<ScreenCell> cells) {
+    this.cells = cells;
+  }
+  
+  void setDistances(Distances distances) {
+    this.distances = distances;
+  }
+  
+  void draw() {
+    //draw each room
+    for(ScreenCell sc : cells) {
+      if (distances != null && distances.get(sc.getCell()) != null) {
+        text(distances.get(sc.getCell()), 
+          sc.getCell().getCol() * cellSize + (cellSize/2), 
+          sc.getCell().getRow() * cellSize + (cellSize/2));
+      }
+      sc.draw();
+    }
+  }
+}
+
 class ScreenCell {
   Cell cell;
   int cellSize;
